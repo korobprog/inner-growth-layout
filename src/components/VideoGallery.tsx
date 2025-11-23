@@ -85,7 +85,7 @@ const VideoCard = ({ video, onClick }: VideoCardProps) => {
   return (
     <Card
       ref={ref}
-      className="group overflow-hidden border border-border/60 rounded-xl hover:shadow-lg transition-all duration-300 cursor-pointer bg-card/50"
+      className="group overflow-hidden border border-border/60 rounded-xl shadow-sm hover:shadow-md transition-all duration-500 ease-out cursor-pointer bg-card/50"
       onClick={() => onClick(video)}
     >
       <div className="relative aspect-video bg-gradient-to-br from-muted/40 to-accent/30 flex items-center justify-center rounded-t-xl overflow-hidden">
@@ -181,18 +181,18 @@ const VideoGallery = () => {
 
   return (
     <>
-      <section className="py-24 px-6">
+      <section id="video" className="py-32 px-6 border-t border-border/20 scroll-mt-20">
         <div className="container max-w-7xl mx-auto">
           <div className="text-center mb-16 space-y-5">
-            <h2 className="font-serif text-4xl md:text-5xl font-thin text-foreground tracking-tight">
+            <h2 className="font-serif font-light text-foreground tracking-tight" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}>
               Видео и лекции
             </h2>
-            <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto" style={{ fontSize: 'clamp(1rem, 1.2vw, 1.125rem)', lineHeight: '1.75' }}>
               Смотрите подборку материалов и вдохновляйтесь
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {videoData.map((video) => (
               <VideoCard
                 key={video.id}

@@ -30,6 +30,8 @@ All colors MUST be HSL.
 
     --accent: 42 25% 92%;
     --accent-foreground: 32 18% 28%;
+    
+    --hover-accent: 35 25% 45%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 45 30% 99%;
@@ -153,10 +155,44 @@ All colors MUST be HSL.
 
   html {
     scroll-behavior: smooth;
+    --font-size-base: 1rem;
   }
 
   body {
     @apply bg-background text-foreground;
+    font-size: var(--font-size-base, 1rem);
+  }
+  
+  /* Font size classes */
+  html.font-normal {
+    --font-size-base: 1rem; /* 16px - минимум для читаемости */
+  }
+  
+  html.font-large {
+    --font-size-base: 1.125rem; /* 18px */
+  }
+  
+  html.font-xlarge {
+    --font-size-base: 1.25rem; /* 20px */
+  }
+  
+  /* Apply font size to text content */
+  .text-content {
+    font-size: var(--font-size-base, 1rem);
+  }
+  
+  /* Ensure minimum font size for all text elements */
+  p, li, span, div {
+    font-size: inherit;
+  }
+  
+  /* Minimum font sizes for small text */
+  .text-xs {
+    font-size: clamp(0.75rem, var(--font-size-base, 1rem) * 0.75, 0.875rem);
+  }
+  
+  .text-sm {
+    font-size: clamp(0.875rem, var(--font-size-base, 1rem) * 0.875, 1rem);
   }
 }
 
@@ -177,31 +213,74 @@ All colors MUST be HSL.
     animation-play-state: running !important;
   }
 
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+
   .drop-cap::first-letter {
     /* Modern approach using initial-letter */
-    -webkit-initial-letter: 3;
-    initial-letter: 3;
+    -webkit-initial-letter: 3.5;
+    initial-letter: 3.5;
     
     /* Fallback for browsers without initial-letter support */
     float: left;
-    font-size: 4.5rem;
-    line-height: 0.85;
+    font-size: 5rem;
+    line-height: 0.8;
     
     /* Typography */
     font-family: 'Playfair Display', serif;
-    font-weight: 400;
+    font-weight: 300;
     
     /* Spacing */
-    margin-right: 0.5rem;
-    margin-top: 0.1rem;
-    padding-right: 0.25rem;
+    margin-right: 0.75rem;
+    margin-top: 0.15rem;
+    padding-right: 0.5rem;
     
-    /* Color - darker than text but same hue */
-    color: hsl(28 10% 25%);
+    /* Color - more expressive */
+    color: hsl(32 18% 28%);
     
     /* Better text rendering */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Highlight key phrases */
+  .text-content strong {
+    font-weight: 500;
+    color: hsl(32 18% 28%);
+  }
+  
+  .text-content em {
+    font-style: italic;
+    color: hsl(32 18% 28%);
+  }
+  
+  /* List styles */
+  .text-content ul {
+    list-style: none;
+  }
+  
+  .text-content ul li {
+    position: relative;
+  }
+  
+  .text-content ul li::before {
+    content: "•";
+    position: absolute;
+    left: -1.5rem;
+    color: hsl(32 18% 28% / 0.4);
+    font-weight: 300;
   }
 
   .dark .drop-cap::first-letter {

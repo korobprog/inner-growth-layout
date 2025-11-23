@@ -50,13 +50,13 @@ const Hero = () => {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center px-6 py-20">
+    <section id="hero" className="min-h-screen flex items-center justify-center px-6 py-32">
       <div className="container max-w-7xl">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left side - Content */}
           <div className="space-y-10 text-center lg:text-left order-2 lg:order-1">
             <div className="space-y-6">
-              <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-thin tracking-tight text-foreground leading-[1.1]">
+              <h1 className="font-serif font-light tracking-tight text-foreground leading-[1.1]" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
                 Действуй эффективно
               </h1>
               <p className="text-2xl md:text-3xl lg:text-4xl text-muted-foreground font-serif font-normal tracking-wider leading-relaxed">
@@ -97,11 +97,11 @@ const Hero = () => {
           {/* Right side - Portrait */}
           <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
             <div className="relative">
-              <div className="absolute inset-0 bg-muted/20 rounded-2xl blur-2xl opacity-40 -z-10"></div>
+              <div className="absolute inset-0 bg-muted/20 rounded-2xl blur-3xl opacity-30 -z-10"></div>
               <img
                 src={portrait}
                 alt="Portrait"
-                className="relative rounded-2xl shadow-lg w-full max-w-md lg:max-w-lg object-cover"
+                className="relative rounded-2xl shadow-sm hover:shadow-md transition-all duration-500 ease-out w-full max-w-md lg:max-w-lg object-cover"
               />
             </div>
           </div>
