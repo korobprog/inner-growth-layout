@@ -5,6 +5,7 @@ import VideoGallery from "@/components/VideoGallery";
 import Solution from "@/components/Solution";
 import Events from "@/components/Events";
 import CTA from "@/components/CTA";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const Index = () => {
   return (
@@ -25,6 +26,7 @@ const Index = () => {
         <Events />
         <CTA />
       </div>
+      <ScrollToTop />
     </div>
   );
 };

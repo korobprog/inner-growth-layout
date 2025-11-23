@@ -59,14 +59,14 @@ const Hero = () => {
               <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-thin tracking-tight text-foreground leading-[1.1]">
                 Действуй эффективно
               </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground font-light tracking-wide leading-relaxed">
+              <p className="text-2xl md:text-3xl lg:text-4xl text-muted-foreground font-serif font-normal tracking-wider leading-relaxed">
                 Путь к знанию, а не игра с судьбой
               </p>
               <div className="pt-2 flex justify-center">
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="text-base px-10 py-7 rounded-md font-light tracking-wide border-border/60 hover:border-border transition-colors animate-gentle-blink flex items-center gap-2"
+                  className="text-lg md:text-xl px-10 py-7 rounded-md font-serif font-normal tracking-wider border-border/60 hover:border-border transition-colors animate-gentle-blink flex items-center gap-2"
                   onClick={handleOpenVideo}
                 >
                   <Play className="w-5 h-5" />
