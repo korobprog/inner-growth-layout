@@ -1,92 +1,152 @@
 import { useState, useRef, useEffect } from "react";
-import { Play } from "lucide-react";
+import { Play, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-
-// Импорт видео файлов
-import video1 from "@/assets/video/video_2025-11-22_16-04-22.mp4";
-import video2 from "@/assets/video/video_2025-11-22_16-04-42.mp4";
-import video3 from "@/assets/video/video_2025-11-22_16-04-46.mp4";
-import video4 from "@/assets/video/video_2025-11-22_16-04-49.mp4";
-import video5 from "@/assets/video/video_2025-11-22_16-04-53.mp4";
-import video6 from "@/assets/video/video_2025-11-22_16-04-56.mp4";
-import video7 from "@/assets/video/video_2025-11-22_16-04-59.mp4";
-import video8 from "@/assets/video/video_2025-11-22_16-05-03.mp4";
-import video9 from "@/assets/video/video_2025-11-22_16-05-06.mp4";
-import video10 from "@/assets/video/video_2025-11-22_16-05-09.mp4";
-import video11 from "@/assets/video/video_2025-11-22_16-05-13.mp4";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useInView } from "react-intersection-observer";
 
 interface Video {
   id: number;
   title: string;
-  url: string;
+  url?: string;
+  getUrl?: () => Promise<{ default: string }>;
 }
 
-const videos: Video[] = [
-  { 
-    id: 1, 
-    title: "Лекция о внутреннем развитии", 
-    url: video1
-  },
-  { 
-    id: 2, 
-    title: "Путь к осознанной жизни", 
-    url: video2
-  },
-  { 
-    id: 3, 
-    title: "Знания и мудрость", 
-    url: video3
-  },
-  { 
-    id: 4, 
-    title: "Духовное развитие", 
-    url: video4
-  },
-  { 
-    id: 5, 
-    title: "Внутренний рост", 
-    url: video5
-  },
-  { 
-    id: 6, 
-    title: "Осознанность и практика", 
-    url: video6
-  },
-  { 
-    id: 7, 
-    title: "Философия жизни", 
-    url: video7
-  },
-  { 
-    id: 8, 
-    title: "Мудрость и опыт", 
-    url: video8
-  },
-  { 
-    id: 9, 
-    title: "Развитие сознания", 
-    url: video9
-  },
-  { 
-    id: 10, 
-    title: "Путь к себе", 
-    url: video10
-  },
-  { 
-    id: 11, 
-    title: "Внутренняя гармония", 
-    url: video11
-  },
+// Импортируем видео файлы динамически для lazy loading на уровне бандлера
+const videoImports = {
+  video1: () => import("@/assets/video/video_2025-11-22_16-04-22.mp4"),
+  video2: () => import("@/assets/video/video_2025-11-22_16-04-42.mp4"),
+  video3: () => import("@/assets/video/video_2025-11-22_16-04-46.mp4"),
+  video4: () => import("@/assets/video/video_2025-11-22_16-04-49.mp4"),
+  video5: () => import("@/assets/video/video_2025-11-22_16-04-53.mp4"),
+  video6: () => import("@/assets/video/video_2025-11-22_16-04-56.mp4"),
+  video7: () => import("@/assets/video/video_2025-11-22_16-04-59.mp4"),
+  video8: () => import("@/assets/video/video_2025-11-22_16-05-03.mp4"),
+  video9: () => import("@/assets/video/video_2025-11-22_16-05-06.mp4"),
+  video10: () => import("@/assets/video/video_2025-11-22_16-05-09.mp4"),
+  video11: () => import("@/assets/video/video_2025-11-22_16-05-13.mp4"),
+};
+
+// Создаем массив видео с функциями для получения URL
+const videoData = [
+  { id: 1, title: "Лекция о внутреннем развитии", getUrl: videoImports.video1 },
+  { id: 2, title: "Путь к осознанной жизни", getUrl: videoImports.video2 },
+  { id: 3, title: "Знания и мудрость", getUrl: videoImports.video3 },
+  { id: 4, title: "Духовное развитие", getUrl: videoImports.video4 },
+  { id: 5, title: "Внутренний рост", getUrl: videoImports.video5 },
+  { id: 6, title: "Осознанность и практика", getUrl: videoImports.video6 },
+  { id: 7, title: "Философия жизни", getUrl: videoImports.video7 },
+  { id: 8, title: "Мудрость и опыт", getUrl: videoImports.video8 },
+  { id: 9, title: "Развитие сознания", getUrl: videoImports.video9 },
+  { id: 10, title: "Путь к себе", getUrl: videoImports.video10 },
+  { id: 11, title: "Внутренняя гармония", getUrl: videoImports.video11 },
 ];
+
+// Компонент карточки видео с lazy loading
+interface VideoCardProps {
+  video: Video;
+  onClick: (video: Video) => void;
+}
+
+const VideoCard = ({ video, onClick }: VideoCardProps) => {
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [metadataLoaded, setMetadataLoaded] = useState(false);
+  const [canPlay, setCanPlay] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "200px 0px",
+    triggerOnce: false,
+  });
+
+  // Загружаем URL видео через динамический импорт когда карточка становится видимой
+  useEffect(() => {
+    if (inView && video.getUrl && !videoUrl) {
+      video.getUrl().then((module) => {
+        setVideoUrl(module.default);
+      });
+    }
+  }, [inView, video, videoUrl]);
+
+  useEffect(() => {
+    if (inView && videoRef.current && videoUrl && !metadataLoaded) {
+      videoRef.current.load();
+    }
+  }, [inView, videoUrl, metadataLoaded]);
+
+  const handleLoadedMetadata = () => {
+    setMetadataLoaded(true);
+  };
+
+  const handleCanPlay = () => {
+    setCanPlay(true);
+  };
+
+  return (
+    <Card
+      ref={ref}
+      className="group overflow-hidden border border-border/60 rounded-xl hover:shadow-lg transition-all duration-300 cursor-pointer bg-card/50"
+      onClick={() => onClick(video)}
+    >
+      <div className="relative aspect-video bg-gradient-to-br from-muted/40 to-accent/30 flex items-center justify-center rounded-t-xl overflow-hidden">
+        {inView && videoUrl && (
+          <video
+            ref={videoRef}
+            src={videoUrl}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+              canPlay ? "opacity-0 group-hover:opacity-20" : "opacity-0"
+            }`}
+            preload="metadata"
+            muted
+            playsInline
+            onLoadedMetadata={handleLoadedMetadata}
+            onCanPlay={handleCanPlay}
+          />
+        )}
+        <div className="absolute inset-0 bg-muted/20"></div>
+        <div className="absolute inset-0 bg-foreground/3 group-hover:bg-foreground/5 transition-colors rounded-t-xl"></div>
+        
+        {(!canPlay || !videoUrl) && inView && (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <Skeleton className="w-full h-full absolute inset-0" />
+            <div className="relative z-20 w-14 h-14 rounded-full bg-card/95 backdrop-blur-sm border border-border/40 flex items-center justify-center">
+              <Loader2 className="w-5 h-5 text-foreground animate-spin" />
+            </div>
+          </div>
+        )}
+        
+        {canPlay && videoUrl && (
+          <div className="relative z-10 w-14 h-14 rounded-full bg-card/95 backdrop-blur-sm border border-border/40 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+            <Play className="w-5 h-5 text-foreground fill-foreground ml-0.5" />
+          </div>
+        )}
+      </div>
+      <div className="p-6">
+        <h3 className="font-serif text-lg font-light text-foreground leading-relaxed">
+          {video.title}
+        </h3>
+      </div>
+    </Card>
+  );
+};
 
 const VideoGallery = () => {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const handleVideoClick = (video: Video) => {
-    setSelectedVideo(video);
+  const handleVideoClick = async (video: Video) => {
+    // Загружаем URL видео если его еще нет
+    let url = video.url;
+    if (!url && video.getUrl) {
+      const module = await video.getUrl();
+      url = module.default;
+    }
+    
+    setSelectedVideo({ ...video, url: url || "" });
+    setVideoReady(false);
     setIsOpen(true);
   };
 
@@ -97,12 +157,19 @@ const VideoGallery = () => {
     }
     setIsOpen(false);
     setSelectedVideo(null);
+    setVideoReady(false);
   };
 
   useEffect(() => {
     if (isOpen && videoRef.current && selectedVideo) {
       videoRef.current.load();
-      // Автозапуск видео после загрузки
+    }
+  }, [isOpen, selectedVideo]);
+
+  const handleCanPlayThrough = () => {
+    setVideoReady(true);
+    // Автозапуск видео после загрузки
+    if (videoRef.current) {
       const playPromise = videoRef.current.play();
       if (playPromise !== undefined) {
         playPromise.catch((error) => {
@@ -111,7 +178,7 @@ const VideoGallery = () => {
         });
       }
     }
-  }, [isOpen, selectedVideo]);
+  };
 
   return (
     <>
@@ -127,33 +194,12 @@ const VideoGallery = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
-            {videos.map((video) => (
-              <Card
+            {videoData.map((video) => (
+              <VideoCard
                 key={video.id}
-                className="group overflow-hidden border border-border/60 rounded-xl hover:shadow-lg transition-all duration-300 cursor-pointer bg-card/50"
-                onClick={() => handleVideoClick(video)}
-              >
-                <div className="relative aspect-video bg-gradient-to-br from-muted/40 to-accent/30 flex items-center justify-center rounded-t-xl overflow-hidden">
-                  <video
-                    src={video.url}
-                    className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-20 transition-opacity duration-300"
-                    preload="none"
-                    loading="lazy"
-                    muted
-                    playsInline
-                  />
-                  <div className="absolute inset-0 bg-muted/20"></div>
-                  <div className="absolute inset-0 bg-foreground/3 group-hover:bg-foreground/5 transition-colors rounded-t-xl"></div>
-                  <div className="relative z-10 w-14 h-14 rounded-full bg-card/95 backdrop-blur-sm border border-border/40 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
-                    <Play className="w-5 h-5 text-foreground fill-foreground ml-0.5" />
-                  </div>
-                </div>
-                <div className="p-6">
-                  <h3 className="font-serif text-lg font-light text-foreground leading-relaxed">
-                    {video.title}
-                  </h3>
-                </div>
-              </Card>
+                video={video}
+                onClick={handleVideoClick}
+              />
             ))}
           </div>
         </div>
@@ -161,8 +207,16 @@ const VideoGallery = () => {
 
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="max-w-4xl w-full p-0 bg-background/95 backdrop-blur-sm">
-          {selectedVideo && (
+          {selectedVideo && selectedVideo.url && (
             <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
+              {!videoReady && (
+                <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/80">
+                  <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-8 h-8 text-foreground animate-spin" />
+                    <p className="text-sm text-muted-foreground">Загрузка видео...</p>
+                  </div>
+                </div>
+              )}
               <video
                 ref={videoRef}
                 src={selectedVideo.url}
@@ -171,9 +225,19 @@ const VideoGallery = () => {
                 className="w-full h-full"
                 playsInline
                 controlsList="nodownload"
+                preload="auto"
+                onCanPlayThrough={handleCanPlayThrough}
               >
                 Ваш браузер не поддерживает воспроизведение видео.
               </video>
+            </div>
+          )}
+          {selectedVideo && !selectedVideo.url && (
+            <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center">
+              <div className="flex flex-col items-center gap-4">
+                <Loader2 className="w-8 h-8 text-foreground animate-spin" />
+                <p className="text-sm text-muted-foreground">Загрузка видео...</p>
+              </div>
             </div>
           )}
           {selectedVideo && (
