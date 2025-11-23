@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Type, TypeMinus, TypePlus } from "lucide-react";
+import { Type, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +55,7 @@ const FontSizeControl = () => {
           onClick={() => handleFontSizeChange("normal")}
           aria-label="Обычный размер шрифта"
         >
-          <TypeMinus className="w-4 h-4" />
+          <Minus className="w-4 h-4" />
         </Button>
         <Button
           variant="ghost"
@@ -79,7 +79,7 @@ const FontSizeControl = () => {
           onClick={() => handleFontSizeChange("xlarge")}
           aria-label="Очень большой размер шрифта"
         >
-          <TypePlus className="w-4 h-4" />
+          <Plus className="w-4 h-4" />
         </Button>
       </div>
     </div>
