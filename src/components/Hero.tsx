@@ -1,13 +1,54 @@
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Loader2, Play } from "lucide-react";
 import portrait from "@/assets/portrait.png";
+import videoUrl from "@/assets/video/video_2025-11-22_16-05-09.mp4";
 
 const Hero = () => {
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   const handleScrollToAbout = () => {
     const aboutSection = document.getElementById('about');
     if (aboutSection) {
       aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  const handleOpenVideo = () => {
+    setIsVideoOpen(true);
+    setVideoReady(false);
+  };
+
+  const handleCloseVideo = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+    setIsVideoOpen(false);
+    setVideoReady(false);
+  };
+
+  useEffect(() => {
+    if (isVideoOpen && videoRef.current) {
+      videoRef.current.load();
+    }
+  }, [isVideoOpen]);
+
+  const handleCanPlayThrough = () => {
+    setVideoReady(true);
+    if (videoRef.current) {
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.log('Автозапуск видео заблокирован:', error);
+        });
+      }
+    }
+  };
+
   return (
     <section className="min-h-screen flex items-center justify-center px-6 py-20">
       <div className="container max-w-7xl">
@@ -21,6 +62,17 @@ const Hero = () => {
               <p className="text-xl md:text-2xl text-muted-foreground font-light tracking-wide leading-relaxed">
                 Путь к знанию, а не игра с судьбой
               </p>
+              <div className="pt-2 flex justify-center">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="text-base px-10 py-7 rounded-md font-light tracking-wide border-border/60 hover:border-border transition-colors animate-gentle-blink flex items-center gap-2"
+                  onClick={handleOpenVideo}
+                >
+                  <Play className="w-5 h-5" />
+                  Приглашение Хабаровчан
+                </Button>
+              </div>
             </div>
 
             <div className="pt-2">
@@ -55,6 +107,34 @@ const Hero = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={isVideoOpen} onOpenChange={handleCloseVideo}>
+        <DialogContent className="max-w-4xl w-full p-0 bg-background/95 backdrop-blur-sm">
+          <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
+            {!videoReady && (
+              <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/80">
+                <div className="flex flex-col items-center gap-4">
+                  <Loader2 className="w-8 h-8 text-foreground animate-spin" />
+                  <p className="text-sm text-muted-foreground">Загрузка видео...</p>
+                </div>
+              </div>
+            )}
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              controls
+              autoPlay
+              className="w-full h-full"
+              playsInline
+              controlsList="nodownload"
+              preload="auto"
+              onCanPlayThrough={handleCanPlayThrough}
+            >
+              Ваш браузер не поддерживает воспроизведение видео.
+            </video>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
