@@ -29,17 +29,16 @@ const videoImports = {
 
 // Создаем массив видео с функциями для получения URL
 const videoData = [
-  { id: 1, title: "Лекция о внутреннем развитии", getUrl: videoImports.video1 },
-  { id: 2, title: "Путь к осознанной жизни", getUrl: videoImports.video2 },
+  { id: 1, title: "Основная проблема мужчин", getUrl: videoImports.video1 },
+  { id: 2, title: "Кто такой разумный человек?", getUrl: videoImports.video2 },
   { id: 3, title: "Знания и мудрость", getUrl: videoImports.video3 },
-  { id: 4, title: "Духовное развитие", getUrl: videoImports.video4 },
-  { id: 5, title: "Внутренний рост", getUrl: videoImports.video5 },
+  { id: 4, title: "Что такое хорошо, что такое плохо?", getUrl: videoImports.video4 },
+  { id: 5, title: "Кризис среднего возраста", getUrl: videoImports.video5 },
   { id: 6, title: "Осознанность и практика", getUrl: videoImports.video6 },
   { id: 7, title: "Философия жизни", getUrl: videoImports.video7 },
-  { id: 8, title: "Мудрость и опыт", getUrl: videoImports.video8 },
-  { id: 9, title: "Развитие сознания", getUrl: videoImports.video9 },
-  { id: 10, title: "Путь к себе", getUrl: videoImports.video10 },
-  { id: 11, title: "Внутренняя гармония", getUrl: videoImports.video11 },
+  { id: 8, title: "Что такое настоящее счастье?", getUrl: videoImports.video8 },
+  { id: 9, title: "Приглашение Хабаровчан", getUrl: videoImports.video10 },
+  { id: 10, title: "Внутренняя гармония", getUrl: videoImports.video11 },
 ];
 
 // Компонент карточки видео с lazy loading
